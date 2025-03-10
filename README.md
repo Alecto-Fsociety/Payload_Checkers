@@ -97,6 +97,6 @@ Feel free to open an issue or submit a pull request on GitHub.
 ## **📩 Contact**
 Developer: **[Alecto-Fsociety](https://github.com/Alecto-Fsociety)**  
 GitHub: **[https://github.com/Alecto-Fsociety/PayloadCheckers](https://github.com/Alecto-Fsociety/PayloadCheckers)**  
-Proton Mail: **[ goodbye_friend1111@proton.me]**
+Proton Mail: goodbye_friend1111@proton.me
 ```
 
