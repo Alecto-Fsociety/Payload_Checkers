@@ -83,7 +83,7 @@ class Payloads:
 
                         if status in {"200","301","302"}:
                             with open(f"{self.dir_name}/{self.file_name}","a+",encoding="utf-8")as files:
-                                files.write(f"[+] {self.scheme}://{self.domain}/{self.path}?payl0ad={payload} -> status {status}\n")
+                                files.write(f"[+] {self.scheme}://{self.domain}/{self.path}?payl0ad={quote(payload)} -> status {status}\n")
                 else:
                     with socket.socket(socket.AF_INET,socket.SOCK_STREAM)as sock:
                         sock.settimeout(3)
@@ -103,7 +103,7 @@ class Payloads:
 
                         if status in {"200","301","302"}:
                             with open(f"{self.dir_name}/{self.file_name}","a+",encoding="utf-8")as files:
-                                files.write(f"[+] {self.scheme}://{self.domain}/{self.path}?payl0ad={payload} -> status {status}\n")
+                                files.write(f"[+] {self.scheme}://{self.domain}/{self.path}?payl0ad={quote(payload)} -> status {status}\n")
 
             except Exception as e:
                 with open(f"{self.err_dir_name}/{self.err_log_file_name}","a+",encoding="utf-8")as err_files:
