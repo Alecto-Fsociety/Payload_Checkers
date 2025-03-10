@@ -36,8 +36,6 @@ class Payloads:
         self.method = method.lower()
         self.port = port if port is not None else (443 if self.scheme == "https" else 80)
 
-        self.json_data = []
-
     def payload_lists(self):
         return [payload.strip("\n") for payload in open(self.payload_path,"r",encoding="utf-8",errors="ignore").readlines()]
 
