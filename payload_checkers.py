@@ -1,4 +1,4 @@
-import socket,ssl,sys,argparse,re,traceback,chardet,random,pathlib,itertools as it
+import socket,ssl,os,sys,argparse,re,traceback,chardet,random,pathlib,json,itertools as it
 from urllib.parse import quote,urlparse
 from datetime import datetime
 from multiprocessing import Pool
@@ -16,7 +16,8 @@ print(banner)
 
 class Payloads:
     def __init__(self,target_url,payload_list,method,port):
-        self.base = urlparse(target_url)
+        self.target_url = target_url
+        self.base = urlparse(self.target_url)
         self.scheme = self.base.scheme
         self.domain = self.base.netloc
         self.path = self.base.path
@@ -27,9 +28,12 @@ class Payloads:
         self.ua_list = self.ua_lists()
         self.dir_name = "log_payloads"
         self.err_dir_name = "log_err"
+        self.json_dir_name = "log_json"
         self.date = datetime.now() 
-        self.file_name = f"{self.date.year}_{self.date.month}-{self.date.day}_{self.date.hour}-{self.date.minute}_payloads.log"
+        self.file_data_name = f"{self.date.year}_{self.date.month}-{self.date.day}_{self.date.hour}-{self.date.minute}_payloads.log"
         self.err_log_file_name = "err.log"
+
+        self.file_name = self.file_data_name
 
         self.cycle = it.cycle(r"/-\|")
 
@@ -48,6 +52,20 @@ class Payloads:
     def post_headers(self,payload):
         pay_loads = f"payl0ad={quote(payload)}"
         return f"POST /{self.path} HTTP/1.1\r\nHost:{self.domain}\r\nContent-Type:application/x-www-form-urlencoded\r\nContent-Length:{len(pay_loads)}\r\nUser-Agent:{random.choice(self.ua_list)}\r\nAccept:*/*\r\n\r\n{pay_loads}\r\n"
+
+    def parse_headers(self,response_data,payload):
+        headers = {}
+        status_match = re.search(r"HTTP/\d\.\d (\d+)", response_data)
+        status = status_match.group(1) if status_match else "000"
+        headers["payload"] = payload
+        headers["status"] = status
+        headers["url"] = self.target_url
+        for line in response_data.split("\r\n"):
+            match = re.match(r"([^:]+): (.+)", line)
+            if match:
+                key, value = match.groups()
+                headers[key] = value
+        return headers
 
     def requests(self):
         list_payload = self.payload_lists();lines = len(list_payload)
@@ -78,12 +96,11 @@ class Payloads:
                         encoding = detected["encoding"] if detected["encoding"] else "utf-8"
                         response_data = response.decode(encoding, errors="ignore") 
 
-                        match = re.search(r"HTTP/\d\.\d (\d+)", response_data)
-                        status = match.group(1) if match else "000"
+                        json_data = self.parse_headers(response_data,payload)
 
-                        if status in {"200","301","302"}:
-                            with open(f"{self.dir_name}/{self.file_name}","a+",encoding="utf-8")as files:
-                                files.write(f"[+] {self.scheme}://{self.domain}/{self.path}?payl0ad={payload} -> status {status}\n")
+                        if json_data["status"] in {"200","301","302"}:
+                            with open(f"{self.dir_name}/{self.file_name}", "a+", encoding="utf-8") as files:
+                                files.write(f"{json.dumps(json_data)}\n")
                 else:
                     with socket.socket(socket.AF_INET,socket.SOCK_STREAM)as sock:
                         sock.settimeout(3)
@@ -98,16 +115,45 @@ class Payloads:
                         encoding = detected["encoding"] if detected["encoding"] else "utf-8"
                         response_data = response.decode(encoding, errors="ignore")
 
-                        match = re.search(r"HTTP/\d\.\d (\d+)", response_data)
-                        status = match.group(1) if match else "000"
+                        json_data = self.parse_headers(response_data,payload)
 
-                        if status in {"200","301","302"}:
-                            with open(f"{self.dir_name}/{self.file_name}","a+",encoding="utf-8")as files:
-                                files.write(f"[+] {self.scheme}://{self.domain}/{self.path}?payl0ad={payload} -> status {status}\n")
-
+                        if json_data["status"] in {"200","301","302"}:
+                            with open(f"{self.dir_name}/{self.file_name}", "a+", encoding="utf-8") as files:
+                                files.write(f"{json.dumps(json_data)}\n")
+                                
             except Exception as e:
                 with open(f"{self.err_dir_name}/{self.err_log_file_name}","a+",encoding="utf-8")as err_files:
                     err_files.write(f"[-] {err_log} | {traceback.format_exc()}\n")
+
+    def check_logs(self):
+        pathlib.Path(self.json_dir_name).mkdir(exist_ok=True)
+        path_name = f"{self.dir_name}/{self.file_name}"
+        try:
+            lines = open(path_name,"r",encoding="utf-8").readlines()
+            data = [json.loads(line.strip()) for line in lines if line.strip()]
+
+            data_dict = {}
+            for json_datas in data:
+                dumps_str = json.dumps(json_datas,sort_keys=True,separators=(",",":"))
+                if dumps_str not in data_dict:
+                    data_dict[dumps_str] = json_datas
+
+            seen_payload = set()
+            ends_data = []
+
+            for json_data in data_dict.values():
+                payload = json_data.get("payload")
+                if payload and payload not in seen_payload:
+                    seen_payload.add(payload)
+                    ends_data.append(json_data)
+
+            checked_file_name = f"{(os.path.basename(self.file_name).split(".")[0])}_checked_{self.domain}.json"
+            json_path_name = f"{self.json_dir_name}/{checked_file_name}"
+            with open(json_path_name,"w+",encoding="utf-8")as files:
+                json.dump(ends_data,files,indent=1,ensure_ascii=False)
+
+        except KeyboardInterrupt:
+            pass # Cannot Stop Writing!!
 
 def worker(payload_instance):
     payload_instance.requests() 
@@ -125,8 +171,11 @@ def main():
 
         payload_instance = Payloads(parse.url,parse.w,parse.m,parse.p)
         with Pool(parse.t) as pool:
-            pool.starmap(worker, [(payload_instance,)] * parse.t,chunksize=1)  
+            pool.starmap(worker, [(payload_instance,)] * parse.t,chunksize=1)
+
+        payload_instance.check_logs()
     except KeyboardInterrupt:
+        payload_instance.check_logs()
         sys.stdout.write("\n[#] Stop_Send_Payloads...\n")
 
 if __name__ == "__main__":
