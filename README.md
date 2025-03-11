@@ -5,18 +5,17 @@ PayloadCheckers is a Python3-based tool designed for automated security testing 
 ---
 
 ## **🔧 Features**
-✅ Multi-threaded execution using `multiprocessing.Pool` for high-speed testing  
-✅ Supports custom payload lists (`-w <wordlist.txt>`)  
-✅ Automatically generates logs (`log_payloads/`, `log_err/`)  
-✅ ASCII Art banner independent of system dependencies  
-✅ Customizable User-Agent (`ua.txt` allows adding multiple user agents)  
-✅ Supports testing on specific ports (`-p <port>`)  
+👉 Multi-threaded execution using `multiprocessing.Pool` for high-speed testing  
+👉 Supports custom payload lists (`-w <wordlist.txt>`)  
+👉 Automatically generates logs (`log_payloads/`, `log_err/`, `log_json/`)  
+👉 ASCII Art banner independent of system dependencies  
+👉 Customizable User-Agent (`ua.txt` allows adding multiple user agents)  
+👉 Supports testing on specific ports (`-p <port>`)  
 
 ---
 
-## **📥 Installation**
+## **👅 Installation**
 This tool is designed to run on **Python3 only** and does not require any additional dependencies.
-
 
 ---
 
@@ -38,8 +37,22 @@ python3 payload_checkers.py -url "https://example.com" -w payloads.txt
 ---
 
 ## **📂 Logging**
-✅ `log_payloads/` stores **payload execution logs**  
-✅ `log_err/` stores **error logs (`traceback.format_exc()`)**  
+👉 `log_payloads/` stores **payload execution logs**  
+👉 `log_err/` stores **error logs (`traceback.format_exc()`)**  
+👉 `log_json/` stores **structured JSON logs** with payload responses  
+
+Each executed payload's request and response details are saved in `log_json/` in JSON format, allowing for easy parsing and further analysis.
+
+Example JSON log entry:
+```json
+{
+    "payload": "<x onclick=alert(1)>click this!",
+    "status": "200",
+    "Date": "Mon, 10 Mar 2025 13:57:21 GMT",
+    "Server": "Apache/2.4.62 (Debian)",
+    "Content-Type": "text/html; charset=UTF-8"
+}
+```
 
 ---
 
@@ -63,13 +76,11 @@ python3 payload_checkers.py -url "https://target.com" -w payloads.txt -p 8080
 
 ## **🎨 ASCII Banner**
 PayloadCheckers displays a **cool ASCII banner** upon execution!
-
 ```
 ▗▄▄▖  ▗▄▖▗▖  ▗▖▗▖    ▗▄▖  ▗▄▖ ▗▄▄▄      ▗▄▄▖▗▖ ▗▖▗▄▄▄▖ ▗▄▄▖▗▖ ▗▖▗▄▄▄▖▗▄▄▖  ▗▄▄▖
 ▐▌ ▐▌▐▌ ▐▌▝▚▞▘ ▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌  █    ▐▌   ▐▌ ▐▌▐▌   ▐▌   ▐▌▗▞▘▐▌   ▐▌ ▐▌▐▌
 ▐▛▀▘ ▐▛▀▜▌ ▐▌  ▐▌   ▐▌ ▐▌▐▛▀▜▌▐▌  █    ▐▌   ▐▛▀▜▌▐▛▀▀▘▐▌   ▐▛▚▖ ▐▛▀▀▘▐▛▀▚▖ ▝▀▚▖
 ▐▌   ▐▌ ▐▌ ▐▌  ▐▙▄▄▖▝▚▄▞▘▐▌ ▐▌▐▙▄▄▀    ▝▚▄▄▖▐▌ ▐▌▐▙▄▄▖▝▚▄▄▖▐▌ ▐▌▐▙▄▄▖▐▌ ▐▌▗▄▄▞▘
-
 ```
 
 ---
@@ -82,7 +93,7 @@ This tool is intended **for security research and testing only**.
 
 ---
 
-## **📜 License**
+## **🐝 License**
 This project is licensed under the **MIT License**.  
 You are free to use and modify it, but must comply with the license terms when using it for commercial purposes.
 
@@ -94,8 +105,7 @@ Feel free to open an issue or submit a pull request on GitHub.
 
 ---
 
-## **📩 Contact**
+## **👥 Contact**
 Developer: **[Alecto-Fsociety](https://github.com/Alecto-Fsociety)**  
 GitHub: **[https://github.com/Alecto-Fsociety/PayloadCheckers](https://github.com/Alecto-Fsociety/PayloadCheckers)**  
 Proton Mail: goodbye_friend1111@proton.me
-
