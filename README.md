@@ -94,7 +94,7 @@ This tool is intended **for security research and testing only**.
 ---
 
 ## **🐝 License**
-This project is licensed under the **MIT License**.  
+This project is licensed under the **[MIT License](https://github.com/Alecto-Fsociety/Alecto-Fsociety/blob/main/LICENSE)**.  
 You are free to use and modify it, but must comply with the license terms when using it for commercial purposes.
 
 ---
