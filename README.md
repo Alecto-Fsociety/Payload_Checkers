@@ -11,6 +11,7 @@ PayloadCheckers is a Python3-based tool designed for automated security testing 
 👉 ASCII Art banner independent of system dependencies  
 👉 Customizable User-Agent (`ua.txt` allows adding multiple user agents)  
 👉 Supports testing on specific ports (`-p <port>`)  
+👉 Add Status (`-s <status_code*>`)
 
 ---
 
