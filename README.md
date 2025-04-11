@@ -34,7 +34,7 @@ python3 payload_checkers.py -url "https://example.com" -w payloads.txt
 | `-m` | HTTP method (`GET` / `POST`) |
 | `-p` | Custom port number (default: `80` / `443`) |
 | `-t` | Number of threads (default: `4`) |
-| `-s` | Add Status (e.g., `204 404 ...`) |
+| `-s` | Add Status (default: `200,301,302`) |
 
 ---
 
