@@ -15,7 +15,7 @@ print(banner)
 
 
 class Payloads:
-    def __init__(self,target_url,payload_list,method,port):
+    def __init__(self,target_url,payload_list,method,port,add_status):
         self.target_url = target_url
         self.base = urlparse(self.target_url)
         self.scheme = self.base.scheme
@@ -32,6 +32,9 @@ class Payloads:
         self.date = datetime.now() 
         self.file_data_name = f"{self.date.year}_{self.date.month}-{self.date.day}_{self.date.hour}-{self.date.minute}_payloads.log"
         self.err_log_file_name = "err.log"
+
+        self.status_list = {"200","301","302"}
+        [self.status_list.add(status) for status in add_status] if add_status else self.status_list
 
         self.file_name = self.file_data_name
 
@@ -91,14 +94,20 @@ class Payloads:
                         else:
                             ssock.send(bytes(self.get_headers(payload),"utf-8"))
 
-                        response = ssock.recv(1024*10)
+                        response = b""
+                        while True:
+                            packet = ssock.recv(1024*10)
+                            if len(packet) <= 0:
+                                break
+                            response += packet 
+                            
                         detected = chardet.detect(response)
                         encoding = detected["encoding"] if detected["encoding"] else "utf-8"
                         response_data = response.decode(encoding, errors="ignore") 
 
                         json_data = self.parse_headers(response_data,payload)
 
-                        if json_data["status"] in {"200","301","302"}:
+                        if json_data["status"] in self.status_list:
                             with open(f"{self.dir_name}/{self.file_name}", "a+", encoding="utf-8") as files:
                                 files.write(f"{json.dumps(json_data)}\n")
                 else:
@@ -110,14 +119,19 @@ class Payloads:
                             sock.sendall(bytes(self.post_headers(payload),"utf-8"))
                         else:
                             sock.sendall(bytes(self.get_headers(payload),"utf-8"))
-                        response = sock.recv(1024*10)
+                        response = b""
+                        while True:
+                            packet = sock.recv(1024*10)
+                            if len(packet) <= 0:
+                                break
+                            response += packet
                         detected = chardet.detect(response)
                         encoding = detected["encoding"] if detected["encoding"] else "utf-8"
                         response_data = response.decode(encoding, errors="ignore")
 
                         json_data = self.parse_headers(response_data,payload)
 
-                        if json_data["status"] in {"200","301","302"}:
+                        if json_data["status"] in self.status_list:
                             with open(f"{self.dir_name}/{self.file_name}", "a+", encoding="utf-8") as files:
                                 files.write(f"{json.dumps(json_data)}\n")
                                 
@@ -149,11 +163,15 @@ class Payloads:
 
             checked_file_name = f"{(os.path.basename(self.file_name).split(".")[0])}_checked_{self.domain}.json"
             json_path_name = f"{self.json_dir_name}/{checked_file_name}"
+
             with open(json_path_name,"w+",encoding="utf-8")as files:
                 json.dump(ends_data,files,indent=1,ensure_ascii=False)
 
         except KeyboardInterrupt:
             pass # Cannot Stop Writing!!
+
+        except FileNotFoundError:
+            sys.stdout.write(f"\n[-] No Logs...\n")
 
 def worker(payload_instance):
     payload_instance.requests() 
@@ -166,10 +184,11 @@ def main():
         arg.add_argument("-t",type=int,default=4,help="[>] Pool_Thread_Numbers / -t <pool_thread_numbers>")
         arg.add_argument("-m",type=str,default="GET",help="[>] Method [POST/GET] / -m <post/get>")
         arg.add_argument("-p",type=int,default=None,help="[>] Custom_Port_Number / -p <custom_port_number>")
+        arg.add_argument("-s",type=str,required=False,nargs="*",help="[>] Add_Status / -s <add_status>")
         arg.add_argument("-w",type=str,required=True,help="[>] Payload_WordList_Path / -w <payload_wordlist_path>")
         parse = arg.parse_args()
 
-        payload_instance = Payloads(parse.url,parse.w,parse.m,parse.p)
+        payload_instance = Payloads(parse.url,parse.w,parse.m,parse.p,parse.s)
         with Pool(parse.t) as pool:
             pool.starmap(worker, [(payload_instance,)] * parse.t,chunksize=1)
 
