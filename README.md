@@ -74,9 +74,9 @@ python3 payload_checkers.py -url "https://target.com" -w sqli_payloads.txt -m PO
 python3 payload_checkers.py -url "https://target.com" -w payloads.txt -p 8080
 ```
 
-### **🔹 Testing on Add Status 204 404**
+### **🔹 Testing on Add Status 204 404 ...**
 ```bash 
-python3 payload_checkers.py -url "https://target.com" -w payloads.txt -s 204 403
+python3 payload_checkers.py -url "https://target.com" -w payloads.txt -s 204 403 ...
 ```
 ---
 
