@@ -50,11 +50,11 @@ class Payloads:
         return [ua.strip("\n") for ua in open(self.ua_path,"r",encoding="utf-8").readlines()]
 
     def get_headers(self,payload):
-        return f"GET /{self.path}?payl0ad={quote(payload)} HTTP/1.1\r\nHost:{self.domain}\r\nUser-Agent:{random.choice(self.ua_list)}\r\nAccept:*/*\r\n\r\n"
+        return f"GET /{self.path}?payl0ad={quote(payload)} HTTP/1.1\r\nHost:{self.domain}\r\nUser-Agent:{random.choice(self.ua_list)}\r\nConnection:close\r\nAccept:*/*\r\n\r\n"
 
     def post_headers(self,payload):
         pay_loads = f"payl0ad={quote(payload)}"
-        return f"POST /{self.path} HTTP/1.1\r\nHost:{self.domain}\r\nContent-Type:application/x-www-form-urlencoded\r\nContent-Length:{len(pay_loads)}\r\nUser-Agent:{random.choice(self.ua_list)}\r\nAccept:*/*\r\n\r\n{pay_loads}\r\n"
+        return f"POST /{self.path} HTTP/1.1\r\nHost:{self.domain}\r\nContent-Type:application/x-www-form-urlencoded\r\nContent-Length:{len(pay_loads)}\r\nUser-Agent:{random.choice(self.ua_list)}\r\nConnection:close\r\nAccept:*/*\r\n\r\n{pay_loads}\r\n"
 
     def parse_headers(self,response_data,payload):
         headers = {}
@@ -93,14 +93,13 @@ class Payloads:
                             ssock.send(bytes(self.post_headers(payload),"utf-8"))
                         else:
                             ssock.send(bytes(self.get_headers(payload),"utf-8"))
-
                         response = b""
                         while True:
                             packet = ssock.recv(1024*10)
                             if len(packet) <= 0:
                                 break
-                            response += packet 
-                            
+                            response += packet
+                        #response = ssock.recv(1024*10)
                         detected = chardet.detect(response)
                         encoding = detected["encoding"] if detected["encoding"] else "utf-8"
                         response_data = response.decode(encoding, errors="ignore") 
