@@ -33,6 +33,7 @@ python3 payload_checkers.py -url "https://example.com" -w payloads.txt
 | `-m` | HTTP method (`GET` / `POST`) |
 | `-p` | Custom port number (default: `80` / `443`) |
 | `-t` | Number of threads (default: `4`) |
+| `-s` | Add Status (e.g., `204 404`) |
 
 ---
 
@@ -72,6 +73,10 @@ python3 payload_checkers.py -url "https://target.com" -w sqli_payloads.txt -m PO
 python3 payload_checkers.py -url "https://target.com" -w payloads.txt -p 8080
 ```
 
+### **🔹 Testing on Add Status 204 404**
+```bash 
+python3 payload_checkers.py -url "https://target.com" -w payloads.txt -s 204 403
+```
 ---
 
 ## **🎨 ASCII Banner**
