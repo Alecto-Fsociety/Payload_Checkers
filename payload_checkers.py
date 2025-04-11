@@ -99,7 +99,6 @@ class Payloads:
                             if len(packet) <= 0:
                                 break
                             response += packet
-                        #response = ssock.recv(1024*10)
                         detected = chardet.detect(response)
                         encoding = detected["encoding"] if detected["encoding"] else "utf-8"
                         response_data = response.decode(encoding, errors="ignore") 
